@@ -1,0 +1,7 @@
+#pragma once
+/* generate by configure_file */
+
+#cmakedefine CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@
+#cmakedefine CMAKE_BINARY_DIR  "@CMAKE_BINARY_DIR@"
+#cmakedefine CMAKE_SOURCE_DIR "@CMAKE_SOURCE_DIR@"
+#define ASSET_DIR  "@CMAKE_SOURCE_DIR@/Asset"

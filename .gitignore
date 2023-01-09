@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+/build
+/custom.cmake
+/include/Helper/project/project.h
+/out
+/temp
