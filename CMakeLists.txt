@@ -91,7 +91,7 @@ endif()
 configure_file(${CMAKE_CURRENT_LIST_DIR}/src/project.h.in ${CMAKE_CURRENT_LIST_DIR}/include/Helper/project/project.h)
 
 
-set(Helper_log_DEPS spdlog::spdlog Helper_project)
+set(Helper_log_DEPS spdlog::spdlog Boost::describe Helper_project)
 set(Helper_OpenGL_DEPS glad glfw Helper_log Helper_glm)
 
 foreach(lib ${HELPER_LIBS})

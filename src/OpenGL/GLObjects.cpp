@@ -131,8 +131,8 @@ void OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer> &vbo
         return;
     }
 
-    glBindVertexArray(m_rendererId);
-    vbo->bind();
+    auto vao_temp_bind = this->temp_bind();
+    auto vbo_temp_bind = vbo->temp_bind();
 
     const auto &layout = vbo->getLayout();
 
@@ -145,15 +145,13 @@ void OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer> &vbo
         index++;
     }
     m_vertexBuffers.push_back(vbo);
-    glBindVertexArray(0);
 }
 
 void OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer> &ibo)
 {
-    glBindVertexArray(m_rendererId);
+    auto vao_temp_bind = temp_bind();
     ibo->bind();
     m_indexBuffer = ibo;
-    glBindVertexArray(0);
 }
 
 std::mutex &GetGLobalOpenGLMutex()
@@ -202,7 +200,9 @@ void OpenGLContext::init()
                 exit(1);
             }
         },
-        [] {}};
+        []
+        {
+        }};
     CurrentContext() = this;
 
     GLLogger()->info("OpenGL Vendor: {}", (char *)glGetString(GL_VENDOR));

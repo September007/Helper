@@ -212,7 +212,7 @@ public:
 
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
-    virtual ScopeObject tempUse(){
+    virtual ScopeObject temp_bind(){
         return ScopeObject([p=this]{
             p->bind();
         },[p=this]{
@@ -283,9 +283,19 @@ public:
     VertexArray() = default;
     virtual ~VertexArray() = default;
 
-    virtual void bind() const = 0;
-    virtual void unbind() const = 0;
-
+    virtual void        bind() const = 0;
+    virtual void        unbind() const = 0;
+    virtual ScopeObject temp_bind()
+    {
+        return ScopeObject{[p = this]
+            {
+                p->bind();
+            },
+            [p = this]
+            {
+                p->unbind();
+            }};
+    }
     virtual void addVertexBuffer(const std::shared_ptr<VertexBuffer> &vbo) = 0;
     virtual void setIndexBuffer(const std::shared_ptr<IndexBuffer> &ibo) = 0;
 
@@ -437,11 +447,13 @@ struct ProgramObject
             return;
         // check program link status
         auto ret = getInfo(GL_LINK_STATUS);
-        if constexpr (strict_)
-            if (ret != GL_TRUE)
-            {
+
+        if (ret != GL_TRUE)
+        {
+            GLLogger()->critical("program link failed:\n\t{}", tempInfo);
+            if constexpr (strict_)
                 throw std::runtime_error("program link failed:\n\t" + tempInfo);
-            }
+        }
     }
     DebugArea(static inline std::atomic<int> use_cnt = 0;);
     void use()

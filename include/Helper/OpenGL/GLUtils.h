@@ -13,29 +13,27 @@
 #include <set>
 #include <sstream>
 #include <vector>
-#include <filesystem>
 #include <type_traits>
 #include <iostream>
 #include <functional>
 #ifndef STRICT_
-#   define STRICT_ true
+#    define STRICT_ true
 #endif
-namespace fs=std::filesystem;
 struct ScopeObject
 {
     std::function<void()> cons;
     std::function<void()> decons;
-    ScopeObject(
-        std::function<void()> cons_, std::function<void()> decons_) 
-        : cons{std::move(cons_)},decons{std::move(decons_)}
+    ScopeObject(std::function<void()> cons_, std::function<void()> decons_)
+        : cons{std::move(cons_)}
+        , decons{std::move(decons_)}
     {
-        if(cons!=nullptr)
-        cons();
+        if (cons != nullptr)
+            cons();
     }
     ~ScopeObject()
     {
-        if(decons!=nullptr)
-        decons();
+        if (decons != nullptr)
+            decons();
     }
 };
 
@@ -55,10 +53,11 @@ inline auto readFile(const std::string &f) -> std::string
     catch (std::exception &e)
     {
         std::cout << e.what() << std::endl;
-        GLLogger()->error("readFile Error:[file:{},err:{}] at {}:{}",f,e.what(),__FILE__,__LINE__);
+        GLLogger()->error("readFile Error:[file:{},err:{}] at {}:{}", f, e.what(), __FILE__, __LINE__);
     }
-    catch(...){
-        throw;//this should not be reached
+    catch (...)
+    {
+        throw; // this should not be reached
     }
     return "";
 }
@@ -74,20 +73,20 @@ inline auto writeFile(const std::string &fName, const std::string &data)
 using AttributeInfo = struct
 {
     std::string name;
-    GLenum type;
-    GLint position;
-    GLint size;
+    GLenum      type;
+    GLint       position;
+    GLint       size;
 };
 
 // use after program link
 inline auto getAttributes(GLint program)
 {
     std::map<std::string, AttributeInfo> ret;
-    int count = 0;
+    int                                  count = 0;
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &count);
     constexpr int name_length = 256;
-    char cache_name[name_length];
-    GLint used_cache_name_length = 0;
+    char          cache_name[name_length];
+    GLint         used_cache_name_length = 0;
     for (int i = 0; i < count; ++i)
     {
         AttributeInfo info;
@@ -160,10 +159,11 @@ inline int ProjectionOutOfRange(glm::vec4 v, restMAT... rest)
 // no postfix!!!
 inline auto getSrcFileNameOnlyName(std::string const &fullName)
 {
-    fs::path path = fullName;
-    auto filename = path.filename().string();
-    auto dotPos = filename.find_last_of('.');
-    return filename.substr(0, dotPos);
+    auto begin = fullName.find_last_of("/\\"), end = fullName.find_last_of('.');
+    if (begin == std::string::npos)
+        begin = 0;
+    auto ret = fullName.substr(begin,end);
+    return ret;
 }
 
 template<typename T, typename T1 = T, typename T2 = T>
@@ -185,7 +185,7 @@ std::string toRGB(UNIT *data, int pixelLength)
     for (int i = 0; i < pixelLength; ++i)
     {
         void *p = ret.data() + sizeof(TO) * i * 3;
-        TO *pp = reinterpret_cast<TO *>(p);
+        TO   *pp = reinterpret_cast<TO *>(p);
         pp[0] = data[i * 3];
         pp[1] = data[i * 3 + 1];
         pp[2] = data[i * 3 + 2];
