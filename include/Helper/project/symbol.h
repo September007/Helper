@@ -4,14 +4,14 @@
 #    if defined(Helper_EXPORT)
 #        if defined(WIN32) || defined(__CYGWIN__)
 #            if defined(Helper_EXPORT_BUILD)
-#                pragma message("[pragma message]Helper_API_DESC: Export For Win")
+// #                pragma message("[pragma message]Helper_API_DESC: Export For Win")
 #                if defined(__GNUC__)
 #                    define Helper_API_DESC __attribute__((dllexport)) extern
 #                else
 #                    define Helper_API_DESC __declspec(dllexport)
 #                endif
 #            else
-#                pragma message("[pragma message]Helper_API_DESC: Importing Foe Win")
+// #                pragma message("[pragma message]Helper_API_DESC: Importing For Win")
 #                if defined(__GNUC__)
 #                    define Helper_API_DESC __attribute__((dllimport)) extern
 #                else
