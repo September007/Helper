@@ -648,6 +648,7 @@ inline auto CreateTexture(GLuint textureTarget, void *data, int width, int heigh
 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
     glGenerateMipmap(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
     ret.SetWHN(width, height, -1);
     return ret;
 }

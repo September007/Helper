@@ -2,7 +2,11 @@
 #include <boost/describe.hpp>
 #pragma push_macro("BDEE")
 #undef BDEE
-#define BDEE(val) BOOST_DESCRIBE_ENUM_ENTRY(_GL_Enum, val)
+#ifndef NO_GL_ENUM_BDEE
+#    define BDEE(val) BOOST_DESCRIBE_ENUM_ENTRY(_GL_Enum, val)
+#else
+#    define BDEE(...)
+#endif
 enum class _GL_Enum:uint64_t
 {
     _GL_DEPTH_BUFFER_BIT = 0x00000100,
@@ -2511,6 +2515,6 @@ BDEE(_GL_TIME_ELAPSED)
 BDEE(_GL_TIMESTAMP)
 BDEE(_GL_INT_2_10_10_10_REV)
 
-BOOST_DESCRIBE_ENUM_END(cudaError_enum);
+BOOST_DESCRIBE_ENUM_END(_GL_Enum);
 
 #pragma pop_macro("BDEE")
