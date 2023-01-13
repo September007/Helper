@@ -164,9 +164,9 @@ GLFWwindow *CreateGLContext(GLFWwindow *share, std::string title, int64_t width,
     std::unique_lock<std::mutex> lock(GetGLobalOpenGLMutex());
     auto                         logger = GLLogger();
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow *window = glfwCreateWindow((int)width, (int)height, title.data(), NULL, share);
     if (window != 0)
         logger->debug("GLFWwindow create window[{},share:{}] Success", intptr_t(window), intptr_t(share));

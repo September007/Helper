@@ -24,24 +24,60 @@ Helper_API std::shared_ptr<spdlog::logger> GLLogger(std::shared_ptr<spdlog::logg
 Helper_API std::shared_ptr<spdlog::logger> CULogger(std::shared_ptr<spdlog::logger> new_logger = nullptr);
 
 Helper_API_VAR int g_error;
+
+#if !defined(TRACE_CALL)
+#    if !defined(NO_TRACE_CALL)
+#        define TRACE_CALL(logger, desc, api) logger->trace("CALL [{}] {} at {}:{}}", desc, #api, __FILE__, __LINE__)
+#    else
+#        define TRACE_CALL()
+#    endif
+#endif
+
 #define GL_ERROR_STOP()                                                                                                                    \
     {                                                                                                                                      \
         g_error = glGetError();                                                                                                            \
         if (g_error != 0)                                                                                                                  \
         {                                                                                                                                  \
-            GLLogger()->error("gl get error[{}]: at {}:{}", GL_Formater_Enum_Param(g_error), __FILE__, __LINE__);                                        \
+            GLLogger()->error("gl get error[{}]: at {}:{}", GL_Formater_Enum_Param(g_error), __FILE__, __LINE__);                          \
             throw 1;                                                                                                                       \
         }                                                                                                                                  \
     }
 
-#define NVENC_API_CALL(nvencAPI)                                                                                                           \
+#define GL_API_CALL_RAW(glapi, desc)                                                                                                       \
     do                                                                                                                                     \
     {                                                                                                                                      \
-        auto errorCode = nvencAPI;                                                                                                         \
+        TRACE_CALL(GLLogger(), desc, glapi);                                                                                               \
+        glapi;                                                                                                                             \
+        auto errorCode = glGetError();                                                                                                     \
+        if (errorCode != 0)                                                                                                                \
+        {                                                                                                                                  \
+            GLLogger()->error("{} {} [{}] at {}:{}", desc, #glapi, Formater_Enum_Param(errorCode), __FILE__, __LINE__);                    \
+        }                                                                                                                                  \
+    } while (0)
+
+#define NV_API_CALL_RAW(nvapi, desc)                                                                                                       \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        TRACE_CALL(CULogger(), desc, nvapi);                                                                                               \
+        auto errorCode = nvapi;                                                                                                            \
         if (errorCode != CUDA_SUCCESS)                                                                                                     \
         {                                                                                                                                  \
-            CULogger()->error("{} err:[{}] at {}:{}", #nvencAPI, Formater_Enum_Param(errorCode), __FILE__, __LINE__);                      \
+            const char *errStr = 0;                                                                                                        \
+            cuGetErrorString(errorCode, &errStr);                                                                                          \
+            CULogger()->error(                                                                                                             \
+                "{} {} [{}:{}] at {}:{}", desc, #nvapi, Formater_Enum_Param(errorCode), errStr ? errStr : "", __FILE__, __LINE__);         \
         }                                                                                                                                  \
+    } while (0)
+
+#define NVENC_API_CALL(api_call) NV_API_CALL_RAW(api_call, "ENC")
+#define NV_API_CALL(api_call)    NV_API_CALL_RAW(api_call, "NV")
+
+#define RAW_LOG_ASSERT(logger, desc, condi, action)                                                                                        \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        auto result = (condi);                                                                                                             \
+        if (!result)                                                                                                                       \
+            logger->error("{} {} failed at {}:{}", desc, #condi, __FILE__, __LINE__);                                                      \
     } while (0)
 
 Helper_API int CurrentThreadId();
