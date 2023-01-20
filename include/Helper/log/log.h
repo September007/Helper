@@ -1,5 +1,6 @@
 #pragma once
 #include <Helper/project/symbol.h>
+#include <Helper/macro_util/macro_util.h> // VAR_CALL
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -25,9 +26,25 @@ Helper_API std::shared_ptr<spdlog::logger> CULogger(std::shared_ptr<spdlog::logg
 
 Helper_API_VAR int g_error;
 
+/* parameter log */
+#define PARAM_FMT(p)        #p ":{},"
+#define VAR_PARAM_FMT(...)  VAR_CALL(PARAM_FMT, __VA_ARGS__)
+#define VAR_PARAM_PASS(...) __VA_ARGS__
+#define VAR_PARAMS_STR(...) fmt::format("params[" VAR_PARAM_FMT(__VA_ARGS__) "]", VAR_PARAM_PASS(__VA_ARGS__))
+/* conditional log */
+#define POS_STR fmt::format(FMT_COMPILE("{}:{}"), __FILE__, __LINE__)
+#define HLOG_IF(logger, lvl, true_event, desc_str,...)                                                                                         \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        if (true_event)                                                                                                                    \
+            logger->lvl(desc_str " at {}", POS_STR);                                                                       \
+    } while (0)
+#define HLOG_ASSERT(logger, true_event, ...)  HLOG_IF(logger, error, !(true_event), "assert [" #true_event "] failed")
+#define HLOG_EXPECT(loggger, true_event, ...) HLOG_IF(logger, debug, !(true_event), "expect [" #true_event "] failed")
+
 #if !defined(TRACE_CALL)
 #    if !defined(NO_TRACE_CALL)
-#        define TRACE_CALL(logger, desc, api) logger->trace("CALL [{}] {} at {}:{}}", desc, #api, __FILE__, __LINE__)
+#        define TRACE_CALL(logger, desc, api) logger->trace("CALL [{}] {} at {}}", desc, #api, POS_STR)
 #    else
 #        define TRACE_CALL()
 #    endif
@@ -38,7 +55,7 @@ Helper_API_VAR int g_error;
         g_error = glGetError();                                                                                                            \
         if (g_error != 0)                                                                                                                  \
         {                                                                                                                                  \
-            GLLogger()->error("gl get error[{}]: at {}:{}", GL_Formater_Enum_Param(g_error), __FILE__, __LINE__);                          \
+            GLLogger()->error("gl get error[{}]: at {}", GL_Formater_Enum_Param(g_error), POS_STR);                                        \
             throw 1;                                                                                                                       \
         }                                                                                                                                  \
     }
@@ -79,6 +96,9 @@ Helper_API_VAR int g_error;
         if (!result)                                                                                                                       \
             logger->error("{} {} failed at {}:{}", desc, #condi, __FILE__, __LINE__);                                                      \
     } while (0)
+
+#define Generate_FMT_STR_0(x) #x ":{} "
+#define Generate_FMT_STR_1(x) #x ":{} "
 
 Helper_API int CurrentThreadId();
 Helper_API int CurrentThreadName();
