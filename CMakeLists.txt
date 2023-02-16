@@ -15,20 +15,20 @@ endif()
 
 project(Helper)
 
-option(Helper_BUILD_SHARED "[Helper] build shared libs" ON)
-option(Helper_BUILD_EXAMPLE "[Helper] build example" ON)
-option(Helper_Enable_CUDA "[Helper] enable cuda" ON)
-option(Helper_ThirdParty_Use_Package "[Helper] if super project not set up ThirdParty,Helper will try find_packge in ${ThirParty_ROOT}" "${CMAKE_SOURCE_DIR}/extern")
-option(Helper_ThirParty_ROOT "[Helper] root dir of third libs, if dont wanna download again" "${CMAKE_SOURCE_DIR}/extern")
+option(Helper_BUILD_SHARED "build shared libs" ON)
+option(Helper_BUILD_TEST "build test" ON)
+option(Enable_CUDA "enable cuda" ON)
+option(ThirdParty_Use_Package "if super project not set up ThirdParty,Helper will try find_packge in ${ThirParty_ROOT}" "${CMAKE_SOURCE_DIR}/extern")
+option(ThirParty_ROOT "root dir of third libs, if dont wanna download again" "${CMAKE_SOURCE_DIR}/extern")
 if(MSVC)
-    option(Helper_LOG_NO_GL_ENUM_BDEE "[LOG] when using gcc/clang boost/describe for  _GL_Enum with 13xx member is burden ,but msvc just fine " ON)
+    option(LOG_GL_ENUM_BDEE "[LOG] when using gcc/clang boost/describe for  _GL_Enum with 13xx member is burden ,but msvc just fine " ON)
 else()
-    option(Helper_LOG_NO_GL_ENUM_BDEE "[LOG] when using gcc/clang boost/describe for  _GL_Enum with 13xx member is burden ,but msvc just fine " OFF)
+    option(LOG_GL_ENUM_BDEE "[LOG] when using gcc/clang boost/describe for  _GL_Enum with 13xx member is burden ,but msvc just fine " OFF)
 endif()
 option(USE_MOLD_AS_LINKER "use mold as the linker" ON)
 
 message( "\noptions\n ")
-print(Helper_BUILD_SHARED Helper_Enable_CUDA Helper_ThirdParty_Use_Package Helper_ThirParty_ROOT Helper_LOG_NO_GL_ENUM_BDEE)
+print(Helper_BUILD_SHARED Enable_CUDA ThirdParty_Use_Package ThirParty_ROOT LOG_GL_ENUM_BDEE)
 message(" \n")
 
 # # User could custom their setting in there, which is ignored by the .gitignore
@@ -75,11 +75,14 @@ macro(Helper_set_lib lib)
         target_compile_definitions(Helper_${lib} PRIVATE ${HELPER_PRIVATE_DEFS} PUBLIC ${HELPER_PUBLIC_DEFS})
         target_link_libraries(Helper_${lib} PUBLIC Helper_project ${Helper_${lib}_DEPS})
     endif()
+    # message("H:${lib} link:${Helper_${lib}_DEPS}")
 endmacro()
 
 set(HELPER_LIBS
     "project"
     color_transform
+    "cache"
+    d_type
     fps
     glm
     gtest
@@ -95,7 +98,7 @@ if(NOT TARGET boost_algorithm)
 endif()
 
 if(NOT TARGET spdlog::spdlog)
-    find_package(spdlog HINTS "${ThirParty_ROOT}/spglog" REQUIRED)
+    find_package(spdlog HINTS "${ThirParty_ROOT}/spdlog" REQUIRED)
 endif()
 
 if(NOT TARGET glad)
@@ -111,15 +114,16 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/src/project.h.in ${CMAKE_CURRENT_LIST_D
 
 set(Helper_log_DEPS spdlog::spdlog Boost::describe Helper_project)
 set(Helper_OpenGL_DEPS glad glfw Helper_log Helper_glm)
-
+set(Helper_d_type_DEPS Helper_log ${D_TYPE_LIBS} ${D_TYPE_EXTRA_DEPS})
+print(D_TYPE_LIBS)
 foreach(lib ${HELPER_LIBS})
     Helper_set_lib(${lib})
 endforeach()
 
-if(Helper_LOG_NO_GL_ENUM_BDEE)
+if(NOT LOG_GL_ENUM_BDEE)
     target_compile_definitions(Helper_log PUBLIC NO_GL_ENUM_BDEE )
 endif()
 
-if(Helper_BUILD_EXAMPLE AND EXISTS ${CMAKE_CURRENT_LIST_DIR}/example )
-    add_subdirectory(example)
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt")
+    add_subdirectory(test)
 endif()
