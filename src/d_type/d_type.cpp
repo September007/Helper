@@ -439,16 +439,22 @@ Helper_API std::shared_ptr<DT_Context> CreateDT_Context()
     
     // temporarily change stdout to /dev/null for skip dt license-missing output hhh
     auto oldStdOut=stdout;
+#ifdef  __GNUC__
     stdout=fopen("/dev/null","w");
     auto init_ret =dtEngineIniViaStream(&ret->engine, &sd_ini, DV_NULL) ;
     fclose(stdout);
     stdout = oldStdOut;
-
+#else
+    auto init_ret =dtEngineIniViaStream(&ret->engine, &sd_ini, DV_NULL) ;
+#endif
     if(init_ret == 0)
         DefaultLogger()->error("dtEngineIniViaStream failed");
     
-
+#ifdef __linux__
     DT_STREAM_FILE(sd_font,  "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc");
+#elif defined(WIN32)
+    DT_STREAM_FILE(sd_font, "C:/Windows/Fonts/msgothic.ttc");
+#endif
     ret->cur_font = dtFontAddViaStream(ret->engine, DV_FONT_OPENTYPE_CFF, DV_NULL, 0, -1, 0, 1, &sd_font);
 
     if (ret->cur_font < 0)
