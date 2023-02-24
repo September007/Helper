@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+project(Helper)
 
 macro(print)
     foreach(var ${ARGV})
@@ -13,7 +14,6 @@ elseif(${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
     add_compile_definitions(WIN32)
 endif()
 
-project(Helper)
 
 option(Helper_BUILD_SHARED "build shared libs" ON)
 option(Helper_BUILD_TEST "build test" ON)
@@ -115,9 +115,13 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/src/project.h.in ${CMAKE_CURRENT_LIST_D
 set(Helper_log_DEPS spdlog::spdlog Boost::describe Helper_project)
 set(Helper_OpenGL_DEPS glad glfw Helper_log Helper_glm)
 set(Helper_d_type_DEPS Helper_log ${D_TYPE_LIBS} ${D_TYPE_EXTRA_DEPS})
+
 print(D_TYPE_LIBS)
-foreach(lib ${HELPER_LIBS})
-    Helper_set_lib(${lib})
+foreach(HLIB ${HELPER_LIBS})
+    Helper_set_lib(${HLIB})
+    if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/${HLIB}.cmake")
+        include(${CMAKE_CURRENT_LIST_DIR}/cmake/${HLIB}.cmake)
+    endif()
 endforeach()
 
 if(NOT LOG_GL_ENUM_BDEE)
