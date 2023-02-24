@@ -1,4 +1,4 @@
-
+﻿
 #include <Helper/project/project.h>
 #include <Helper/d_type/_d_type.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -88,7 +88,7 @@ void draw(int width = 600, int height = 400)
     // clang-format off
     std::function<void()> funcs[] = {[&]
         { // 0  RGBA
-            test(new DT_STYLE_ATTRIBS{{0, 0},{0, 0, 255},0, DV_NULL},L'红');
+            test(new DT_STYLE_ATTRIBS{{0, 0},{0, 0, 255},0, DV_NULL},L'A');
             test(new DT_STYLE_ATTRIBS{{0, 0},{0, 255, 0},0, DV_NULL},L'绿');
             test(new DT_STYLE_ATTRIBS{{0, 0},{255, 0, 0},0, DV_NULL},L'蓝');
             test(new DT_STYLE_ATTRIBS{{0, 0},{255, 0, 0,128},0, DV_NULL},L'浅');
@@ -96,7 +96,7 @@ void draw(int width = 600, int height = 400)
         [&]
         { // type:size
             DT_TYPE_ATTRIBS type{0, 0, 0, 0, 0, DT_TRANSFORM{
-                DT_TRANSFORM_PARAMS_L{.size_h = 50, .size_v = 50, .skew_h = 0, .skew_v = 0, .rotation = 0}
+                DT_TRANSFORM_PARAMS_L{50, 50,  0,0,  0}
                 }};
             dtTypesetterSetTypeAttribs(dtc->engine, &type, 0);
             dtCharDoOutput(dtc->engine, L'标', x += 100, y, 0, &pa);
@@ -125,7 +125,7 @@ void draw(int width = 600, int height = 400)
         [&]
         { // type:position not working
             DT_TYPE_ATTRIBS type{
-                0, 0, 0, 0, 0, DT_TRANSFORM{DT_TRANSFORM_PARAMS_L{.size_h = 50, .size_v = 50, .skew_h = 0, .skew_v = 0, .rotation = 0}}};
+                0, 0, 0, 0, 0, DT_TRANSFORM{DT_TRANSFORM_PARAMS_L{ 50,  50, 0, 0, 0}}};
             dtTypesetterSetTypeAttribs(dtc->engine, &type, 0);
             dtCharDoOutput(dtc->engine, 'a', x += 100, y, 0, &pa);
 

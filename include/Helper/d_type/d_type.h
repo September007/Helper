@@ -15,7 +15,7 @@ Helper_API_CLS struct Image
     int          bitCountPerPixel;
     static Image CreateImage(int cx, int cy, int bitCountPerPixel, uint8_t *mem = 0)
     {
-        Image ret{.mem = mem, .cx = cx, .cy = cy, .bitCountPerPixel = bitCountPerPixel};
+        Image ret{mem, cx, cy, bitCountPerPixel};
         if (ret.mem == 0)
         {
             auto pitch = ((cy * bitCountPerPixel + 31) & ~31) >> 3;
