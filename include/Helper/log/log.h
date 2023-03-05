@@ -32,12 +32,18 @@ Helper_API_VAR int g_error;
 #define VAR_PARAM_PASS(...) __VA_ARGS__
 #define VAR_PARAMS_STR(...) fmt::format("params[" VAR_PARAM_FMT(__VA_ARGS__) "]", VAR_PARAM_PASS(__VA_ARGS__))
 /* conditional log */
-#define POS_STR fmt::format(FMT_COMPILE("{}:{}"), __FILE__, __LINE__)
-#define HLOG_IF(logger, lvl, true_event, desc_str,...)                                                                                         \
+
+#ifdef FMT_COMPILE
+#    define POS_STR fmt::format(FMT_COMPILE("{}:{}"), __FILE__, __LINE__)
+#else
+#    define POS_STR fmt::format("{}:{}", __FILE__, __LINE__)
+
+#endif
+#define HLOG_IF(logger, lvl, true_event, desc_str, ...)                                                                                    \
     do                                                                                                                                     \
     {                                                                                                                                      \
         if (true_event)                                                                                                                    \
-            logger->lvl(desc_str " at {}", POS_STR);                                                                       \
+            logger->lvl(desc_str " at {}", POS_STR);                                                                                       \
     } while (0)
 #define HLOG_ASSERT(logger, true_event, ...)  HLOG_IF(logger, error, !(true_event), "assert [" #true_event "] failed")
 #define HLOG_EXPECT(loggger, true_event, ...) HLOG_IF(logger, debug, !(true_event), "expect [" #true_event "] failed")
