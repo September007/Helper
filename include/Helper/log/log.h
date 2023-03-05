@@ -3,6 +3,7 @@
 #include <Helper/macro_util/macro_util.h> // VAR_CALL
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/fmt/bundled/compile.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 /* HELPER_LOG_NO_DESCRIBE: if you dont have boost/describe so define it */
@@ -77,7 +78,7 @@ Helper_API_VAR int g_error;
             GLLogger()->error("{} {} [{}] at {}:{}", desc, #glapi, Formater_Enum_Param(errorCode), __FILE__, __LINE__);                    \
         }                                                                                                                                  \
     } while (0)
-
+#define GL_API_CALL(glapi) GL_API_CALL_RAW(glapi,"api")
 #define NV_API_CALL_RAW(nvapi, desc)                                                                                                       \
     do                                                                                                                                     \
     {                                                                                                                                      \
